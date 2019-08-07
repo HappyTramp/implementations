@@ -10,6 +10,6 @@ Install and run:
 ```
 > gem install ceedling
 > cd [repo folder]
-> ceedling upgrade
+> ceedling new .
 > ceedling test:all
 ```

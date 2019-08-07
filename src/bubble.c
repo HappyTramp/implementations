@@ -1,7 +1,6 @@
 #include <string.h>
 #include "sorting.h"
 
-#include <stdio.h>
 void bubble(void *base, size_t nmemb, size_t size,
 		    int (*compar)(const void *, const void *))
 {

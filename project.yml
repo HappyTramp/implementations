@@ -14,6 +14,7 @@
   :test_file_prefix: test_
   :which_ceedling: vendor/ceedling
   :default_tasks:
+    - clean
     - test:all
 
 #:release_build:
@@ -74,7 +75,7 @@
 # tests or releases. These options are MERGED with the options in supplemental yaml files.
 :libraries:
   :placement: :end
-  :flag: "-L ${1}"  # or "-L ${1}" for example
+  :flag: "${1}"  # or "-L ${1}" for example
   :common: &common_libraries []
   :test:
     - *common_libraries
