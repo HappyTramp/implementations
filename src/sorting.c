@@ -8,7 +8,7 @@ static void merge_array(void *base, void *left, void *right, size_t base_len,
 static void quicksort_rec(void *base, int lo, int hi, size_t size,
 		                  int (*compar)(const void *, const void *));
 static int quicksort_partition(void *base, int lo, int hi, size_t size,
-		                          int (*compar)(const void *, const void *));
+		                       int (*compar)(const void *, const void *));
 
 void bubble_sort(void *base, size_t nmemb, size_t size,
 		         int (*compar)(const void *, const void *))
@@ -132,7 +132,7 @@ static void quicksort_rec(void *base, int lo, int hi, size_t size,
 }
 
 static int quicksort_partition(void *base, int lo, int hi, size_t size,
-		                          int (*compar)(const void *, const void *))
+		                       int (*compar)(const void *, const void *))
 {
     void *pivot = base + hi * size;
     int pivot_i = lo;
@@ -147,4 +147,21 @@ static int quicksort_partition(void *base, int lo, int hi, size_t size,
     }
     swap(base + pivot_i * size, pivot, size);
     return pivot_i;
+}
+
+void cocktail_sort(void *base, size_t nmemb, size_t size,
+		           int (*compar)(const void *, const void *))
+{
+    int j;
+
+    for (int lo = 0, hi = nmemb - 1; lo < hi; lo++, hi--)
+    {
+        printf("%d..%d\n", lo, hi);
+        for (j = lo; j < hi; j++)
+            if (compar(base + j * size, base + (j + 1) * size + size) > 0)
+                swap(base + j * size, base + (j + 1) * size + size, size);
+        for (--j; j > lo; j--)
+            if (compar(base + j * size, base + (j - 1) * size + size) < 0)
+                swap(base + j * size, base + (j - 1) * size + size, size);
+    }
 }
