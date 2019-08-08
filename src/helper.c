@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "sorting.h"
+#include "helper.h"
 
 #define RAND_UPPER 1000
 
@@ -38,7 +38,7 @@ void swap(void *a, void *b, size_t size)
 {
 	void *c;
 
-	if ((c = malloc(size + 100)) == NULL)
+	if ((c = malloc(size)) == NULL)
 		return ;
 	memcpy(c, a, size);
 	memcpy(a, b, size);

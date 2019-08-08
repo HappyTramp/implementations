@@ -5,6 +5,10 @@
 
 static void merge_array(void *base, void *left, void *right, size_t base_len,
                         size_t size, int (*compar)(const void *, const void *));
+static void quicksort_rec(void *base, int lo, int hi, size_t size,
+		                  int (*compar)(const void *, const void *));
+static int quicksort_partition(void *base, int lo, int hi, size_t size,
+		                          int (*compar)(const void *, const void *));
 
 void bubble_sort(void *base, size_t nmemb, size_t size,
 		         int (*compar)(const void *, const void *))
@@ -89,4 +93,40 @@ static void merge_array(void *base, void *left, void *right, size_t base_len,
     while (right_i < right_len)
         memcpy(base + base_index++ * size,
                right + right_i++ * size, size);
+}
+
+void quicksort(void *base, size_t nmemb, size_t size,
+		       int (*compar)(const void *, const void *))
+{
+    quicksort_rec(base, 0, nmemb - 1, size, compar);
+}
+
+static void quicksort_rec(void *base, int lo, int hi, size_t size,
+		                  int (*compar)(const void *, const void *))
+{
+    size_t pivot_i;
+
+    if (lo >= hi)
+        return ;
+    pivot_i = quicksort_partition(base, lo, hi, size, compar);
+    quicksort_rec(base, lo, pivot_i - 1, size, compar);
+    quicksort_rec(base, pivot_i + 1, hi, size, compar);
+}
+
+static int quicksort_partition(void *base, int lo, int hi, size_t size,
+		                          int (*compar)(const void *, const void *))
+{
+    void *pivot = base + hi * size;
+    int pivot_i = lo;
+
+    for (int i = lo; i < hi; i++)
+    {
+        if (compar(base + i * size, pivot) < 0)
+        {
+            swap(base + pivot_i * size, base + i * size, size);
+            pivot_i++;
+        }
+    }
+    swap(base + pivot_i * size, pivot, size);
+    return pivot_i;
 }

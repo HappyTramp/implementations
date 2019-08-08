@@ -73,3 +73,16 @@ void test_merge_sort(void)
     merge_sort(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev);
     TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev));
 }
+
+void test_quicksort(void)
+{
+    quicksort(hc, HC_LEN, HC_SIZE, cmp_int);
+    /* print_int_array(hc, HC_LEN); */
+    TEST_ASSERT_EQUAL_INT_ARRAY(hc_sorted, hc, HC_LEN);
+    TEST_ASSERT_TRUE(sorted(hc, HC_LEN, HC_SIZE, cmp_int));
+
+    quicksort(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int);
+    TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int));
+    quicksort(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev);
+    TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev));
+}
