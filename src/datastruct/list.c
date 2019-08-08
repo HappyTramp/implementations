@@ -1,104 +1,150 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "logger.h"
-#include "linkedlist.h"
+#include "list.h"
 
-
-static bool empty(LList *llist);
-
-LList *llist_new(void)
+List *list_create_elem(void *data)
 {
-    return NULL;
+    List *list;
+
+    if ((list = (List*)malloc(sizeof(List))) == NULL)
+        return NULL;
+    list->data = data;
+    list->next = NULL;
+    return list;
 }
 
-void llist_destroy(LList *llist)
+void list_clear(List *list, void (*free_fn)(void *))
 {
-    for (; !empty(llist); llist = llist_remove(llist, 0));
-}
+    List *tmp;
 
-LList *llist_insert(LList *llist, unsigned int index, int value)
-{
-    LLNode *node = (LLNode *)malloc(sizeof(LLNode));
-    if (node == NULL) log_error_exit("insert node is NULL");
-    node->value = value;
-
-    if (index == 0) {
-        node->next = llist;
-        llist = node;
-    } else {
-        LLNode *prev = llist_at(llist, index - 1);
-        LLNode *next = prev->next;
-        prev->next = node;
-        node->next = next;
+    while (list)
+    {
+        tmp = list->next;
+        free_fn(list->data);
+        free(list);
+        list = tmp;
     }
-    return llist;
 }
 
-LList *llist_remove(LList *llist, unsigned int index)
+void list_destroy(List **list, void (*free_fn)(void *))
 {
-    if (empty(llist)) log_error_exit("remove from empty list");
+    list_clear(*list, free_fn);
+    *list = NULL;
+}
 
-    if (index == 0) {
-        LList *new_head = llist->next;
-        free(llist);
-        return new_head;
+
+void list_push_front(List **list, void *data)
+{
+    List *new_front = list_create_elem(data);
+    if (new_front == NULL)
+        return ;
+    new_front->next = *list;
+    *list = new_front;
+}
+
+void list_push_back(List **list, void *data)
+{
+    List *cursor;
+    List *new_rear = list_create_elem(data);
+
+    if (*list == NULL)
+    {
+        *list = new_rear;
+        return ;
     }
-    LLNode *prev = llist_at(llist, index - 1);
-    LLNode *goner = prev->next;
+    for (cursor = *list; cursor->next != NULL; cursor = cursor->next);
+    cursor->next = new_rear;
+}
+
+void list_destroy_elem(List **elem, void (*free_fn)(void *))
+{
+    if (*elem == NULL)
+        return ;
+    free_fn((*elem)->data);
+    free(*elem);
+    *elem = NULL;
+}
+
+void list_remove_if(List **list, bool (*f)(void *), void (*free_fn)(void *))
+{
+    List *tmp;
+    List *prev = NULL;
+    List *cursor = *list;
+
+    while (cursor != NULL)
+    {
+        while (cursor && f(cursor->data))
+        {
+            if (prev != NULL)
+                prev->next = cursor->next;
+            else
+                *list = cursor->next;
+            tmp = cursor;
+            cursor = cursor->next;
+            list_destroy_elem(&tmp, free_fn);
+        }
+        if (cursor != NULL)
+        {
+            prev = cursor;
+            cursor = cursor->next;
+        }
+    }
+}
+
+void list_remove_at(List **list, int index, void (*free_fn)(void *))
+{
+    if (index == 0) {
+        free_fn((*list)->data);
+        *list = (*list)->next;
+        free(list);
+    }
+    List *prev = list_at(*list, index - 1);
+    List *goner = prev->next;
     prev->next = goner->next;
     free(goner);
-    return llist;
 }
 
-LList *llist_reverse(LList *llist)
+void list_reverse(List **list)
 {
-    if (empty(llist)) return llist;
-    LLNode *node_prev = NULL,
-           *node = llist,
-           *temp;
-    while (node != NULL) {
-        temp = node->next;
-        node->next = node_prev;
-        node_prev = node;
-        node = temp;
+    List *tmp;
+    List *prev = NULL;
+    List *cursor = *list;
+
+    while (cursor != NULL) {
+        tmp = cursor->next;
+        cursor->next = prev;
+        prev = cursor;
+        cursor = tmp;
     }
-    return node_prev;
+    *list = prev;
 }
 
-LList *llist_reverse_rec(LList *llist)
+List *list_reverse_rec(List *list)
 {
-    if (empty(llist)) return llist;
-    if (llist->next == NULL) return llist;
-
-    LLNode *head = llist_reverse_rec(llist->next);
-    llist->next->next = llist;
-    llist->next = NULL;
+    if (list == NULL || list->next == NULL)
+        return list;
+    List *head = list_reverse_rec(list->next);
+    list->next->next = list;
+    list->next = NULL;
     return head;
 }
 
-LLNode *llist_at(LList *llist, unsigned int index)
+List *list_at(List *list, int index)
 {
-    for (unsigned int i = 0; i != index; i++, llist = llist->next);
-    return llist;
+    for (int i = 0; i != index; i++, list = list->next);
+    return list;
 }
 
-unsigned int llist_length(LList *llist)
+size_t list_size(List *list)
 {
-    unsigned int counter = 0;
-    for (; !empty(llist); counter++, llist = llist->next);
+    size_t counter = 0;
+    for (; list != NULL; counter++, list = list->next);
     return counter;
 }
 
-static bool empty(LList *llist)
+void list_print(List *list, void (*print_fn)(void *))
 {
-    return llist == NULL;
-}
-
-void llist_print(LList *llist)
-{
-    printf("linked list at %p [%d]: ", llist, llist_length(llist));
-    for (; !empty(llist); llist = llist->next)
-        printf(" %d", llist->value);
-    printf("\n");
+    for (; list != NULL; list = list->next)
+        print_fn(list->data);
 }

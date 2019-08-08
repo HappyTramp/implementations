@@ -1,118 +1,171 @@
 #include "unity.h"
-#include "unity_fixture.h"
-#include "../src/linkedlist.h"
+#include "list.h"
 
-TEST_GROUP(LinkedList);
+#include "stub_data.h"
 
-static LList *llist;
+void free_not(void *data) {}
+bool is_even(void *data) { return *(int*)data % 2 == 0; }
+bool is_odd(void *data) { return *(int*)data % 2 == 1; }
+void debug_elem(void *data) { printf("%d, ", *(int*)data); }
+void debug_list(List *list) { list_print(list, debug_elem); printf("\n"); }
 
-TEST_SETUP(LinkedList)
+/* GENERATE_STATIC_INT(); */
+static int i0 = 0;
+static int i1 = 1;
+static int i2 = 2;
+static int i3 = 3;
+static int i4 = 4;
+static int i5 = 5;
+static int i6 = 6;
+static int i7 = 7;
+static int i8 = 8;
+static int i9 = 9;
+static List *list;
+static List *range_list;
+static List *rand_list;
+
+void setUp(void)
 {
-    llist = llist_new();
+    list = NULL;
+    range_list = list_create_elem(&i9);
+    list_push_front(&range_list, &i8);
+    list_push_front(&range_list, &i7);
+    list_push_front(&range_list, &i6);
+    list_push_front(&range_list, &i5);
+    list_push_front(&range_list, &i4);
+    list_push_front(&range_list, &i3);
+    list_push_front(&range_list, &i2);
+    list_push_front(&range_list, &i1);
+    list_push_front(&range_list, &i0);
+    rand_list = list_create_elem(&i2);
+    list_push_front(&rand_list, &i0);
+    list_push_front(&rand_list, &i8);
+    list_push_front(&rand_list, &i2);
+    list_push_front(&rand_list, &i9);
 }
 
-TEST_TEAR_DOWN(LinkedList)
+void tearDown(void)
 {
-    llist_destroy(llist);
+    list_destroy(&list, free_not);
+    list_destroy(&range_list, free_not);
+    list_destroy(&rand_list, free_not);
 }
 
-TEST(LinkedList, test_llist_new)
+void test_list_create_elem(void)
 {
-    TEST_ASSERT_NULL(llist);
+    list = list_create_elem(&i0);
+    TEST_ASSERT_NOT_NULL(list);
+    TEST_ASSERT_NULL(list->next);
+    TEST_ASSERT_EQUAL_PTR(&i0, list->data);
+    TEST_ASSERT_EQUAL_INT(i0, *(int*)list->data);
 }
 
-TEST(LinkedList, test_llist_insert)
+void test_list_destroy(void)
 {
-    llist = llist_insert(llist, 0, 4);
-    TEST_ASSERT_NOT_NULL(llist);
-    TEST_ASSERT_EQUAL(4, llist->value);
-    TEST_ASSERT_NULL(llist->next);
-    llist = llist_insert(llist, 1, 3);
-    TEST_ASSERT_EQUAL(3, llist->next->value);
-    TEST_ASSERT_NULL(llist->next->next);
-    llist = llist_insert(llist, 2, 5);
-    TEST_ASSERT_EQUAL(5, llist->next->next->value);
-    llist = llist_insert(llist, 0, 46);
-    TEST_ASSERT_EQUAL(46, llist->value);
-    TEST_ASSERT_EQUAL(4, llist->next->value);
+    list_destroy(&list, free_not);
+    TEST_ASSERT_NULL(list);
 }
 
-TEST(LinkedList, test_llist_remove)
+void test_list_push_front(void)
 {
-    llist = llist_insert(llist, 0, 1);
-    llist = llist_insert(llist, 0, 2);
-    llist = llist_insert(llist, 0, 3);
-    llist = llist_remove(llist, 0);
-    TEST_ASSERT_EQUAL(2, llist->value);
-    llist = llist_remove(llist, 1);
-    TEST_ASSERT_EQUAL(2, llist->value);
-    TEST_ASSERT_NULL(llist->next);
+    list_push_front(&list, &i1);
+    TEST_ASSERT_NOT_NULL(list);
+    TEST_ASSERT_EQUAL_PTR(&i1, list->data);
+    TEST_ASSERT_NULL(list->next);
+    list_push_front(&list, &i8);
+    list_push_front(&list, &i7);
+    TEST_ASSERT_NULL(list->next->next->next);
+    TEST_ASSERT_EQUAL_PTR(&i1, list->next->next->data);
+    TEST_ASSERT_EQUAL_PTR(&i8, list->next->data);
+    TEST_ASSERT_EQUAL_PTR(&i7, list->data);
 }
 
-TEST(LinkedList, test_llist_reverse)
+void test_list_push_back(void)
+{
+    list_push_back(&list, &i1);
+    TEST_ASSERT_NOT_NULL(list);
+    TEST_ASSERT_EQUAL_PTR(&i1, list->data);
+    TEST_ASSERT_NULL(list->next);
+    list_push_back(&list, &i8);
+    list_push_back(&list, &i7);
+    TEST_ASSERT_NULL(list->next->next->next);
+    TEST_ASSERT_EQUAL_PTR(&i7, list->next->next->data);
+    TEST_ASSERT_EQUAL_PTR(&i8, list->next->data);
+    TEST_ASSERT_EQUAL_PTR(&i1, list->data);
+}
+
+void test_list_remove_if(void)
+{
+    list_remove_if(&range_list, is_even, free_not);
+    TEST_ASSERT_EQUAL(i1, *(int*)range_list->data);
+    TEST_ASSERT_EQUAL(i3, *(int*)range_list->next->data);
+    TEST_ASSERT_EQUAL(i5, *(int*)range_list->next->next->data);
+    TEST_ASSERT_EQUAL(i7, *(int*)range_list->next->next->next->data);
+    TEST_ASSERT_EQUAL(i9, *(int*)range_list->next->next->next->next->data);
+    TEST_ASSERT_NULL(range_list->next->next->next->next->next);
+    list_remove_if(&range_list, is_odd, free_not);
+    TEST_ASSERT_NULL(range_list);
+}
+
+void test_list_remove_at(void)
+{
+}
+
+void test_list_reverse(void)
 {
     // empty
-    llist = llist_reverse(llist);
-    TEST_ASSERT_NULL(llist);
+    list_reverse(&list);
+    TEST_ASSERT_NULL(list);
     // one element
-    llist = llist_insert(llist, 0, 1);
-    llist = llist_reverse(llist);
-    TEST_ASSERT_EQUAL(1, llist->value);
-    TEST_ASSERT_NULL(llist->next);
+    list = list_create_elem(&i1);
+    list_reverse(&list);
+    TEST_ASSERT_EQUAL(i1, *(int*)list->data);
+    TEST_ASSERT_NULL(list->next);
     // multiple element
-    llist = llist_insert(llist, 0, 2);
-    llist = llist_insert(llist, 0, 3);
-    llist = llist_reverse(llist);
-    TEST_ASSERT_EQUAL(1, llist->value);
-    TEST_ASSERT_EQUAL(2, llist->next->value);
-    TEST_ASSERT_EQUAL(3, llist->next->next->value);
-    TEST_ASSERT_NULL(llist->next->next->next);
+    list_push_front(&list, &i2);
+    list_push_front(&list, &i3);
+    list_reverse(&list);
+    TEST_ASSERT_EQUAL(i1, *(int*)list->data);
+    TEST_ASSERT_EQUAL(i2, *(int*)list->next->data);
+    TEST_ASSERT_EQUAL(i3, *(int*)list->next->next->data);
+    TEST_ASSERT_NULL(list->next->next->next);
 }
 
-TEST(LinkedList, test_llist_reverse_rec)
+void test_list_reverse_rec(void)
 {
     // empty
-    llist = llist_reverse_rec(llist);
-    TEST_ASSERT_NULL(llist);
+    list = list_reverse_rec(list);
+    TEST_ASSERT_NULL(list);
     // one element
-    llist = llist_insert(llist, 0, 1);
-    /* llist = llist_reverse_rec(llist); */
-    TEST_ASSERT_EQUAL(1, llist->value);
-    TEST_ASSERT_NULL(llist->next);
+    list_push_front(&list, &i1);
+    list = list_reverse_rec(list);
+    TEST_ASSERT_EQUAL(i1, *(int*)list->data);
+    TEST_ASSERT_NULL(list->next);
     // multiple element
-    llist = llist_insert(llist, 0, 2);
-    llist = llist_insert(llist, 0, 3);
-    llist = llist_reverse_rec(llist);
-    TEST_ASSERT_EQUAL(1, llist->value);
-    TEST_ASSERT_EQUAL(2, llist->next->value);
-    TEST_ASSERT_EQUAL(3, llist->next->next->value);
-    TEST_ASSERT_NULL(llist->next->next->next);
+    list_push_front(&list, &i2);
+    list_push_front(&list, &i3);
+    list = list_reverse_rec(list);
+    TEST_ASSERT_EQUAL(i1, *(int*)list->data);
+    TEST_ASSERT_EQUAL(i2, *(int*)list->next->data);
+    TEST_ASSERT_EQUAL(i3, *(int*)list->next->next->data);
+    TEST_ASSERT_NULL(list->next->next->next);
 }
 
-TEST(LinkedList, test_llist_at)
+void test_list_at(void)
 {
-    llist = llist_insert(llist, 0, 1);
-    llist = llist_insert(llist, 0, 2);
-    llist = llist_insert(llist, 0, 3);
-    TEST_ASSERT_EQUAL(3, llist_at(llist, 0)->value);
-    TEST_ASSERT_EQUAL(2, llist_at(llist, 1)->value);
-    TEST_ASSERT_EQUAL(1, llist_at(llist, 2)->value);
-    TEST_ASSERT_NULL(llist_at(llist, 2)->next);
+    TEST_ASSERT_EQUAL(i1, *(int*)list_at(range_list, 1)->data);
+    TEST_ASSERT_EQUAL(i2, *(int*)list_at(range_list, 2)->data);
+    TEST_ASSERT_EQUAL(i3, *(int*)list_at(range_list, 3)->data);
+    TEST_ASSERT_NULL(list_at(range_list, 9)->next);
 }
 
-TEST(LinkedList, test_llist_length)
+void test_list_size(void)
 {
-    TEST_ASSERT_EQUAL(0, llist_length(llist));
-    llist = llist_insert(llist, 0, 1);
-    TEST_ASSERT_EQUAL(1, llist_length(llist));
-    llist = llist_insert(llist, 0, 2);
-    TEST_ASSERT_EQUAL(2, llist_length(llist));
-    llist = llist_insert(llist, 0, 3);
-    TEST_ASSERT_EQUAL(3, llist_length(llist));
-    llist = llist_remove(llist, 0);
-    TEST_ASSERT_EQUAL(2, llist_length(llist));
-    llist = llist_remove(llist, 0);
-    TEST_ASSERT_EQUAL(1, llist_length(llist));
-    llist = llist_remove(llist, 0);
-    TEST_ASSERT_EQUAL(0, llist_length(llist));
+    TEST_ASSERT_EQUAL(0, list_size(list));
+    list_push_front(&list, &i1);
+    TEST_ASSERT_EQUAL(1, list_size(list));
+    list_push_front(&list, &i1);
+    TEST_ASSERT_EQUAL(2, list_size(list));
+    TEST_ASSERT_EQUAL(10, list_size(range_list));
+    TEST_ASSERT_EQUAL(5, list_size(rand_list));
 }

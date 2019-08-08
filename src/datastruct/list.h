@@ -1,19 +1,26 @@
-#ifndef __H_LIST__
-#define __H_LIST__
+#ifndef __LIST_H__
+#define __LIST_H__
 
-typedef struct LLNode {
-    struct LLNode *next;
-    int value;
-} LLNode, LList;
+#include <stdbool.h>
+#include <string.h>
 
-LList *llist_new(void);
-void llist_destroy(LList *llist);
-LList *llist_insert(LList *llist, unsigned int index, int value);
-LList *llist_remove(LList *llist, unsigned int index);
-LList *llist_reverse(LList *llist);
-LList *llist_reverse_rec(LList *llist);
-LLNode *llist_at(LList *llist, unsigned int index);
-unsigned int llist_length(LList *llist);
-void llist_print(LList *llist);
+typedef struct List {
+    struct List *next;
+    void *data;
+} List;
+
+List *list_create_elem(void *data);
+void list_clear(List *list, void (*free_fn)(void *));
+void list_destroy(List **list, void (*free_fn)(void *));
+void list_push_front(List **list, void *data);
+void list_push_back(List **list, void *data);
+void list_destroy_elem(List **elem, void (*free_fn)(void *));
+void list_remove_if(List **list, bool (*f)(void *), void (*free_fn)(void *));
+void list_remove_at(List **list, int index, void (*free_fn)(void *));
+void list_reverse(List **list);
+List *list_reverse_rec(List *list);
+List *list_at(List *list, int index);
+size_t list_size(List *list);
+void list_print(List *list, void (*print_fn)(void *));
 
 #endif

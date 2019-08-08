@@ -1,18 +1,17 @@
-#include "unity.h"
-#include "unity_fixture.h"
-#include "../src/doublylinkedlist.h"
+/* #include "unity.h" */
+/* #include "dllist.h" */
 
-TEST_GROUP(DoublyLinkedList);
+/* TEST_GROUP(DoublyLinkedList); */
 
-static DLList *dllist;
+/* static DLList *dllist; */
 
-TEST_SETUP(DoublyLinkedList)
-{
-    dllist = llist_new();
-}
+/* TEST_SETUP(DoublyLinkedList) */
+/* { */
+/*     dllist = llist_new(); */
+/* } */
 
-TEST_TEAR_DOWN(DoublyLinkedList)
-{
-    llist_destroy(dllist);
-}
+/* TEST_TEAR_DOWN(DoublyLinkedList) */
+/* { */
+/*     llist_destroy(dllist); */
+/* } */
 
