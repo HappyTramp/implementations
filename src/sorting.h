@@ -8,6 +8,8 @@ void bubble_sort(void *base, size_t nmemb, size_t size,
 		         int (*compar)(const void *, const void *));
 void insertion_sort(void *base, size_t nmemb, size_t size,
 		            int (*compar)(const void *, const void *));
+void shell_sort(void *base, size_t nmemb, size_t size,
+		        int (*compar)(const void *, const void *));
 void selection_sort(void *base, size_t nmemb, size_t size,
 		            int (*compar)(const void *, const void *));
 void merge_sort(void *base, size_t nmemb, size_t size,

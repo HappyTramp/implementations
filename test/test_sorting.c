@@ -49,6 +49,20 @@ void test_insertion_sort(void)
     TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev));
 }
 
+void test_shell_sort(void)
+{
+    shell_sort(hc, HC_LEN, HC_SIZE, cmp_int);
+    /* print_int_array(hc, HC_LEN); */
+    TEST_ASSERT_EQUAL_INT_ARRAY(hc_sorted, hc, HC_LEN);
+    TEST_ASSERT_TRUE(sorted(hc, HC_LEN, HC_SIZE, cmp_int));
+
+    shell_sort(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int);
+    /* print_int_array(rrange, RRANGE_LEN); */
+    TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int));
+    shell_sort(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev);
+    TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev));
+}
+
 void test_selection_sort(void)
 {
     selection_sort(hc, HC_LEN, HC_SIZE, cmp_int);
@@ -85,4 +99,5 @@ void test_quicksort(void)
     TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int));
     quicksort(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev);
     TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev));
+    /* print_int_array(rrange, RRANGE_LEN); */
 }

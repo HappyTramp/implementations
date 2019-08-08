@@ -27,6 +27,24 @@ void insertion_sort(void *base, size_t nmemb, size_t size,
             swap(base + (j - 1) * size, base + j * size, size);
 }
 
+void shell_sort(void *base, size_t nmemb, size_t size,
+		        int (*compar)(const void *, const void *))
+{
+    size_t gap;
+    int i, j;
+
+    for (gap = nmemb / 2; gap >= 1; gap /= 2)
+        for (i = 0; i + gap <= nmemb; i++)
+        {
+            j = i;
+            while (j >= gap && compar(base + (j - gap) * size, base + j * size) > 0)
+            {
+                swap(base + (j - gap) * size, base + j * size, size);
+                j -= gap;
+            }
+        }
+}
+
 void selection_sort(void *base, size_t nmemb, size_t size,
 		            int (*compar)(const void *, const void *))
 {

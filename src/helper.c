@@ -17,21 +17,12 @@ bool sorted(void *base, size_t nmemb, size_t size,
 
 int	cmp_int(const void *a,const void *b)
 {
-	if (*(int*)a < *(int*)b)
-		return -1;
-	if (*(int*)a > *(int*)b)
-		return 1;
-	return 0;
+    return *(int*)a - *(int*)b;
 }
 
 int cmp_int_rev(const void *a,const void *b)
 {
-    int cmp = cmp_int(a, b);
-    if (cmp > 0)
-        return -1;
-    if (cmp < 0)
-        return 1;
-    return 0;
+    return *(int*)b - *(int*)a;
 }
 
 void swap(void *a, void *b, size_t size)
@@ -67,7 +58,7 @@ int *randrange(size_t n)
     int *rrange;
 
     rrange = malloc(sizeof(int) * n);
-    while (--n > 0)
+    while (n-- > 0)
         rrange[n] = rand() % RAND_UPPER;
     return rrange;
 }
