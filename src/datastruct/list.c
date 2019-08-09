@@ -18,7 +18,7 @@ void list_clear(List *list, void (*free_fn)(void *))
 {
     List *tmp;
 
-    while (list)
+    while (list != NULL)
     {
         tmp = list->next;
         free_fn(list->data);
