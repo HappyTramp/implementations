@@ -1,142 +1,132 @@
-/* #include "unity.h" */
-/* #include "../src/stack.h" */
+#include "unity.h"
+/* #include "mock_list.h" */
+#include "list.h"
+#include "stack.h"
 
-/* #define TEST_STACK_PUSHES 10 */
-/* #define LEN(array) (sizeof array / sizeof(*array)) */
+void free_not(void *data) {}
+void debug_elem(void *data) { printf("%d, ", *(int*)data); }
+void debug_list(List *list) { list_print(list, debug_elem); printf("\n"); }
 
-/* TEST_GROUP(Stack); */
+static int i0 = 0;
+static int i1 = 1;
+static int i2 = 2;
+static int i3 = 3;
+static int i4 = 4;
+static int i5 = 5;
+static int i6 = 6;
+static int i7 = 7;
+static int i8 = 8;
+static int i9 = 9;
+static Stack *stack;
+static Stack *stack_pushed;
 
-/* static Stack *stack; */
-/* static Stack *stack_pushed; */
-/* /1* static void assert_stack(Stack *stack, int values[], int values_len); *1/ */
+void setUp(void)
+{
+    stack = NULL;
+    stack_pushed = NULL;
+    stack_push(&stack_pushed, &i0);
+    stack_push(&stack_pushed, &i1);
+    stack_push(&stack_pushed, &i2);
+    stack_push(&stack_pushed, &i3);
+    stack_push(&stack_pushed, &i4);
+    stack_push(&stack_pushed, &i5);
+    stack_push(&stack_pushed, &i6);
+    stack_push(&stack_pushed, &i7);
+    stack_push(&stack_pushed, &i8);
+    stack_push(&stack_pushed, &i9);
+}
 
-/* TEST_SETUP(Stack) */
-/* { */
-/*     stack = stack_new(); */
-/*     stack_pushed = stack_new(); */
-/*     for (int i = 0; i < TEST_STACK_PUSHES; i++) */
-/*         stack_pushed = stack_push(stack_pushed, i); */
-/* } */
+void tearDown(void)
+{
+    stack_destroy(&stack, free_not);
+    stack_destroy(&stack_pushed, free_not);
+}
 
-/* TEST_TEAR_DOWN(Stack) */
-/* { */
-/*     stack = stack_destroy(stack); */
-/*     stack_pushed = stack_destroy(stack_pushed); */
-/* } */
+void test_stack_destroy(void)
+{
+    stack_destroy(&stack, free_not);
+    TEST_ASSERT_NULL(stack);
+    stack_destroy(&stack_pushed, free_not);
+    TEST_ASSERT_NULL(stack_pushed);
+}
 
-/* TEST(Stack, test_stack_new) */
-/* { */
-/*     TEST_ASSERT_NULL(stack); */
-/* } */
+void test_stack_push(void)
+{
+    stack_push(&stack, &i1);
+    TEST_ASSERT_NOT_NULL(stack);
+    TEST_ASSERT_NULL(stack->next);
+    TEST_ASSERT_EQUAL(i1, *(int*)stack->data);
 
-/* TEST(Stack, test_stack_destroy) */
-/* { */
-/*     stack = stack_destroy(stack); */
-/*     TEST_ASSERT_NULL(stack); */
-/*     stack_pushed = stack_destroy(stack_pushed); */
-/*     TEST_ASSERT_NULL(stack_pushed); */
-/* } */
+    Stack *cursor = stack_pushed;
+    for (int i = 9; i >= 0 && cursor; i--, cursor = cursor->next)
+        TEST_ASSERT_EQUAL(i, *(int*)cursor->data);
+}
 
-/* TEST(Stack, test_stack_push) */
-/* { */
-/*     stack = stack_push(stack, 1); */
-/*     TEST_ASSERT_NOT_NULL(stack); */
-/*     TEST_ASSERT_EQUAL(1, stack->value); */
-/*     TEST_ASSERT_NULL(stack->next); */
+void test_stack_pop(void)
+{
+    stack_push(&stack, &i1);
+    TEST_ASSERT_EQUAL(i1, *(int*)stack->data);
+    TEST_ASSERT_NULL(stack->next);
+    stack_pop(&stack, free_not);
+    TEST_ASSERT_NULL(stack);
 
-/*     Stack *cursor = stack_pushed; */
-/*     for (int i = TEST_STACK_PUSHES - 1; i >= 0; i--) { */
-/*         TEST_ASSERT_EQUAL(i, cursor->value); */
-/*         cursor = cursor->next; */
-/*     } */
-/* } */
+    for (int i = 9; i > 0; i--) {
+        TEST_ASSERT_EQUAL(i, *(int*)stack_pushed->data);
+        stack_pop(&stack_pushed, free_not);
+    }
+    TEST_ASSERT_NULL(stack_pushed->next);
+}
 
-/* TEST(Stack, test_stack_pop) */
-/* { */
-/*     /1* stack = stack_pop(stack); ERROR *1/ */
-/*     stack = stack_push(stack, 45); */
-/*     TEST_ASSERT_EQUAL(45, stack->value); */
-/*     TEST_ASSERT_NULL(stack->next); */
-/*     stack = stack_pop(stack); */
-/*     TEST_ASSERT_NULL(stack); */
+void test_stack_peek(void)
+{
+    stack_push(&stack, &i1);
+    TEST_ASSERT_EQUAL(i1, *(int*)stack_peek(stack));
 
-/*     for (int i = TEST_STACK_PUSHES - 1; i > 1; i--) { */
-/*         stack_pushed = stack_pop(stack_pushed); */
-/*         TEST_ASSERT_EQUAL(i - 1, stack_pushed->value); */
-/*         TEST_ASSERT_EQUAL(i - 2, stack_pushed->next->value); */
-/*     } */
-/*     TEST_ASSERT_NULL(stack_pushed->next->next); */
-/* } */
+    for (int i = 9 ; i >= 0; i--) {
+        TEST_ASSERT_EQUAL(i, *(int*)stack_peek(stack_pushed));
+        stack_pop(&stack_pushed, free_not);
+    }
+}
 
-/* TEST(Stack, test_stack_peek) */
-/* { */
-/*     /1* TEST_ASSERT_EQUAL(-1, stack_peek(stack)); ERROR *1/ */
-/*     stack = stack_push(stack, 456); */
-/*     TEST_ASSERT_EQUAL(456, stack_peek(stack)); */
+void test_stack_duplicate(void)
+{
+    stack_push(&stack, &i2);
+    stack_duplicate(&stack);
+    TEST_ASSERT_EQUAL(i2, *(int*)stack->data);
+    TEST_ASSERT_EQUAL(i2, *(int*)stack->next->data);
 
-/*     for (int i = TEST_STACK_PUSHES - 1; i >= 0; i--) { */
-/*         TEST_ASSERT_EQUAL(i, stack_peek(stack_pushed)); */
-/*         stack_pushed = stack_pop(stack_pushed); */
-/*     } */
-/* } */
+    stack_duplicate(&stack_pushed);
+    TEST_ASSERT_EQUAL(i9, *(int*)stack_pushed->data);
+    TEST_ASSERT_EQUAL(i9, *(int*)stack_pushed->next->data);
+}
 
-/* TEST(Stack, test_stack_duplicate) */
-/* { */
-/*     stack = stack_push(stack, 36); */
-/*     stack = stack_duplicate(stack); */
-/*     TEST_ASSERT_EQUAL(36, stack->value); */
-/*     TEST_ASSERT_EQUAL(36, stack->next->value); */
+void test_stack_swap(void)
+{
+    stack_push(&stack, &i1);
+    stack_push(&stack, &i2);
+    stack_swap(&stack);
+    TEST_ASSERT_EQUAL(i1, *(int*)stack->data);
+    TEST_ASSERT_EQUAL(i2, *(int*)stack->next->data);
 
-/*     stack_pushed = stack_duplicate(stack_pushed); */
-/*     TEST_ASSERT_EQUAL(9, stack_pushed->value); */
-/*     TEST_ASSERT_EQUAL(9, stack_pushed->next->value); */
-/* } */
+    stack_swap(&stack_pushed);
+    TEST_ASSERT_EQUAL(i8, *(int*)stack_pushed->data);
+    TEST_ASSERT_EQUAL(i9, *(int*)stack_pushed->next->data);
+}
 
-/* TEST(Stack, test_stack_swap) */
-/* { */
-/*     stack = stack_push(stack, 54); */
-/*     stack = stack_push(stack, 45); */
-/*     stack = stack_swap(stack); */
-/*     TEST_ASSERT_EQUAL(54, stack->value); */
-/*     TEST_ASSERT_EQUAL(45, stack->next->value); */
+void test_stack_rotate_right(void)
+{
+    TEST_IGNORE();
+}
 
-/*     stack_pushed = stack_swap(stack_pushed); */
-/*     TEST_ASSERT_EQUAL(8, stack_pushed->value); */
-/*     TEST_ASSERT_EQUAL(9, stack_pushed->next->value); */
-/* } */
+void test_stack_rotate_left(void)
+{
+    TEST_IGNORE();
+}
 
-/* TEST(Stack, test_stack_rotate) */
-/* { */
-/*     TEST_IGNORE(); */
-/*     // stack = stack_rotate(stack, n, dir) -> ERROR if n > stack length */
-/*     stack = stack_push(stack, 0); */
-/*     stack = stack_rotate(stack, 1, RotateLeft); */
-/*     TEST_ASSERT_EQUAL(0, stack->value); */
-/*     stack = stack_rotate(stack, 1, RotateRight); */
-/*     TEST_ASSERT_EQUAL(0, stack->value); */
-/*     stack = stack_push(stack, 1); */
-/*     //stack_print(stack); */
-/*     //stack = stack_rotate(stack, 2, RotateLeft); */
-/*     //stack_print(stack); */
-/*     //assert_stack(stack, (int[2]){1, 0}, 2); */
-/*     //stack = stack_rotate(stack, 2, RotateRight); */
-/*     //stack = stack_rotate(stack, 2, RotateRight); */
-/*     //assert_stack(stack, (int[2]){0, 1}, 2); */
-/* } */
-
-/* TEST(Stack, test_stack_length) */
-/* { */
-/*     TEST_ASSERT_EQUAL(0, stack_length(stack)); */
-/*     TEST_ASSERT_EQUAL(10, stack_length(stack_pushed)); */
-/*     stack = stack_push(stack, 1); */
-/*     TEST_ASSERT_EQUAL(1, stack_length(stack)); */
-/* } */
-
-/* /1* static void assert_stack(Stack *stack, int values[], int values_len) *1/ */
-/* /1* { *1/ */
-/* /1*     TEST_ASSERT_EQUAL(values_len, stack_length(stack)); *1/ */
-/* /1*     for (int i = 0; stack != NULL; i++) { *1/ */
-/* /1*         TEST_ASSERT_EQUAL(values[i], stack->value); *1/ */
-/* /1*         stack = stack->next; *1/ */
-/* /1*     } *1/ */
-/* /1* } *1/ */
+void test_stack_size(void)
+{
+    TEST_ASSERT_EQUAL(0, stack_size(stack));
+    TEST_ASSERT_EQUAL(10, stack_size(stack_pushed));
+    stack_push(&stack, &i1);
+    TEST_ASSERT_EQUAL(1, stack_size(stack));
+}

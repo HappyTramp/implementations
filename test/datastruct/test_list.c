@@ -70,8 +70,8 @@ void test_list_push_front(void)
 {
     list_push_front(&list, &i1);
     TEST_ASSERT_NOT_NULL(list);
-    TEST_ASSERT_EQUAL_PTR(&i1, list->data);
     TEST_ASSERT_NULL(list->next);
+    TEST_ASSERT_EQUAL_PTR(&i1, list->data);
     list_push_front(&list, &i8);
     list_push_front(&list, &i7);
     TEST_ASSERT_NULL(list->next->next->next);
