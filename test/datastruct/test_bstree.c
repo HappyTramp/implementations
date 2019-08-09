@@ -1,99 +1,93 @@
-/* #include "unity.h" */
-/* #include "bstree.h" */
+#include "unity.h"
+#include "unity_helper.h"
+#include "helper.h"
+#include "btree.h"
+#include "bstree.h"
 
-/* static BSTree *tree; */
+void free_not(void *data) {}
+static int i0 = 0;
+static int i1 = 1;
+static int i2 = 2;
+static int i3 = 3;
+static int i4 = 4;
+static int i5 = 5;
+static int i6 = 6;
+static int i7 = 7;
+static int i8 = 8;
+static int i9 = 9;
+static BSTree *tree;
 
-/* TEST_SETUP(BSTree) */
-/* { */
-/*     tree = bstree_new(); */
-/* } */
+void setUp(void)
+{
+    tree = NULL;
+}
 
-/* TEST_TEAR_DOWN(BSTree) */
-/* { */
-/*     bstree_destroy(tree); */
-/* } */
+void tearDown(void)
+{
+    btree_destroy(&tree, free_not);
+}
 
-/* TEST(BSTree, test_bstree_new) */
-/* { */
-/*     TEST_ASSERT_NULL(tree); */
-/* } */
+void test_bstree_insert(void)
+{
+    TEST_IGNORE();
+    bstree_insert(&tree, &i5, cmp_int);
+    TEST_ASSERT_INT_DATA(i5, tree->data);
+    TEST_ASSERT_NULL(tree->left);
+    TEST_ASSERT_NULL(tree->right);
+    bstree_insert(&tree, &i2, cmp_int);
+    TEST_ASSERT_INT_DATA(i2, tree->left->data);
+    bstree_insert(&tree, &i9, cmp_int);
+    TEST_ASSERT_INT_DATA(i9, tree->right->data);
+    bstree_insert(&tree, &i3, cmp_int);
+    TEST_ASSERT_INT_DATA(i3, tree->left->right->data);
+    /* bstree_insert(&tree, &i25, cmp_int); */
+    /* TEST_ASSERT_EQUAL(25, tree->right->right->data); */
+    /* bstree_insert(&tree, &i15, cmp_int); */
+    /* TEST_ASSERT_EQUAL(15, tree->right->left->data); */
+    /* // equal */
+    /* bstree_insert(&tree, &i15, cmp_int); */
+    /* TEST_ASSERT_EQUAL(15, tree->right->left->left->data); */
+}
 
-/* TEST(BSTree, test_bstree_insert) */
-/* { */
-/*     tree = bstree_insert(tree, 5); */
-/*     TEST_ASSERT_EQUAL(5, tree->value); */
-/*     TEST_ASSERT_NULL(tree->left); */
-/*     TEST_ASSERT_NULL(tree->right); */
-/*     tree = bstree_insert(tree, 2); */
-/*     TEST_ASSERT_EQUAL(2, tree->left->value); */
-/*     tree = bstree_insert(tree, 20); */
-/*     TEST_ASSERT_EQUAL(20, tree->right->value); */
-/*     tree = bstree_insert(tree, 3); */
-/*     TEST_ASSERT_EQUAL(3, tree->left->right->value); */
-/*     tree = bstree_insert(tree, 25); */
-/*     TEST_ASSERT_EQUAL(25, tree->right->right->value); */
-/*     tree = bstree_insert(tree, 15); */
-/*     TEST_ASSERT_EQUAL(15, tree->right->left->value); */
-/*     // equal */
-/*     tree = bstree_insert(tree, 15); */
-/*     TEST_ASSERT_EQUAL(15, tree->right->left->left->value); */
-/* } */
+void test_bstree_search(void)
+{
+    TEST_IGNORE();
+    TEST_ASSERT_FALSE(bstree_search(tree, &i3, cmp_int));
+    bstree_insert(&tree, &i3, cmp_int);
+    TEST_ASSERT_TRUE(bstree_search(tree, &i3, cmp_int));
+    TEST_ASSERT_FALSE(bstree_search(tree, &i1, cmp_int));
+    bstree_insert(&tree, &i1, cmp_int);
+    TEST_ASSERT_TRUE(bstree_search(tree, &i1, cmp_int));
+    TEST_ASSERT_FALSE(bstree_search(tree, &i4, cmp_int));
+    bstree_insert(&tree, &i4, cmp_int);
+    TEST_ASSERT_TRUE(bstree_search(tree, &i4, cmp_int));
+    TEST_ASSERT_FALSE(bstree_search(tree, &i5, cmp_int));
+    bstree_insert(&tree, &i5, cmp_int);
+    TEST_ASSERT_TRUE(bstree_search(tree, &i5, cmp_int));
+}
 
-/* TEST(BSTree, test_bstree_search) */
-/* { */
-/*     TEST_ASSERT_FALSE(bstree_search(tree, 3)); */
-/*     tree = bstree_insert(tree, 3); */
-/*     TEST_ASSERT_TRUE(bstree_search(tree, 3)); */
-/*     TEST_ASSERT_FALSE(bstree_search(tree, 1)); */
-/*     tree = bstree_insert(tree, 1); */
-/*     TEST_ASSERT_TRUE(bstree_search(tree, 1)); */
-/*     TEST_ASSERT_FALSE(bstree_search(tree, 30)); */
-/*     tree = bstree_insert(tree, 30); */
-/*     TEST_ASSERT_TRUE(bstree_search(tree, 30)); */
-/*     TEST_ASSERT_FALSE(bstree_search(tree, 25)); */
-/*     tree = bstree_insert(tree, 25); */
-/*     TEST_ASSERT_TRUE(bstree_search(tree, 25)); */
-/* } */
-/* TEST(BSTree, test_bstree_min) */
-/* { */
-/*     tree = bstree_insert(tree, 1); */
-/*     TEST_ASSERT_EQUAL(1, bstree_min(tree)); */
-/*     tree = bstree_insert(tree, 3); */
-/*     TEST_ASSERT_EQUAL(1, bstree_min(tree)); */
-/*     tree = bstree_insert(tree, -1); */
-/*     TEST_ASSERT_EQUAL(-1, bstree_min(tree)); */
-/*     tree = bstree_insert(tree, 0); */
-/*     TEST_ASSERT_EQUAL(-1, bstree_min(tree)); */
-/* } */
+void test_bstree_min(void)
+{
+    TEST_IGNORE();
+    bstree_insert(&tree, &i1, cmp_int);
+    TEST_ASSERT_EQUAL(1, bstree_min(tree));
+    bstree_insert(&tree, &i3, cmp_int);
+    TEST_ASSERT_EQUAL(1, bstree_min(tree));
+    bstree_insert(&tree, &i0, cmp_int);
+    TEST_ASSERT_EQUAL(-1, bstree_min(tree));
+    bstree_insert(&tree, &i0, cmp_int);
+    TEST_ASSERT_EQUAL(-1, bstree_min(tree));
+}
 
-/* TEST(BSTree, test_bstree_max) */
-/* { */
-/*     tree = bstree_insert(tree, 1); */
-/*     TEST_ASSERT_EQUAL(1, bstree_max(tree)); */
-/*     tree = bstree_insert(tree, 3); */
-/*     TEST_ASSERT_EQUAL(3, bstree_max(tree)); */
-/*     tree = bstree_insert(tree, -1); */
-/*     TEST_ASSERT_EQUAL(3, bstree_max(tree)); */
-/*     tree = bstree_insert(tree, 10); */
-/*     TEST_ASSERT_EQUAL(10, bstree_max(tree)); */
-/* } */
-
-/* TEST(BSTree, test_bstree_height) */
-/* { */
-/*     TEST_ASSERT_EQUAL(-1, bstree_height(tree)); */
-/*     tree = bstree_insert(tree, 1); */
-/*     TEST_ASSERT_EQUAL(0, bstree_height(tree)); */
-/*     tree = bstree_insert(tree, 2); */
-/*     TEST_ASSERT_EQUAL(1, bstree_height(tree)); */
-/*     tree = bstree_insert(tree, 3); */
-/*     TEST_ASSERT_EQUAL(2, bstree_height(tree)); */
-/*     tree = bstree_insert(tree, 0); */
-/*     TEST_ASSERT_EQUAL(2, bstree_height(tree)); */
-/*     tree = bstree_insert(tree, -1); */
-/*     TEST_ASSERT_EQUAL(2, bstree_height(tree)); */
-/*     tree = bstree_insert(tree, -2); */
-/*     TEST_ASSERT_EQUAL(3, bstree_height(tree)); */
-/*     tree = bstree_insert(tree, -20); */
-/*     TEST_ASSERT_EQUAL(4, bstree_height(tree)); */
-/* } */
-
+void test_bstree_max(void)
+{
+    TEST_IGNORE();
+    bstree_insert(&tree, &i1, cmp_int);
+    TEST_ASSERT_EQUAL(1, bstree_max(tree));
+    bstree_insert(&tree, &i3, cmp_int);
+    TEST_ASSERT_EQUAL(3, bstree_max(tree));
+    bstree_insert(&tree, &i0, cmp_int);
+    TEST_ASSERT_EQUAL(3, bstree_max(tree));
+    bstree_insert(&tree, &i9, cmp_int);
+    TEST_ASSERT_EQUAL(9, bstree_max(tree));
+}

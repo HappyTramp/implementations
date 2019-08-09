@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "queue.h"
 #include "btree.h"
 
 BTree *btree_create_elem(void *data)
@@ -65,4 +66,55 @@ size_t btree_level_count(BTree *tree)
         return (1 + left_level);
     else
         return (1 + right_level);
+}
+
+size_t btree_height(BTree *tree)
+{
+    if (tree == NULL)
+        return -1;
+    return 1 + MAX(btree_height(tree->left), btree_height(tree->right));
+}
+
+void btree_preorder(BTree *tree, void (*f)(BTree *))
+{
+    if (tree == NULL)
+        return;
+    f(tree);
+    btree_preorder(tree->left, f);
+    btree_preorder(tree->right, f);
+}
+
+void btree_inorder(BTree *tree, void (*f)(BTree *))
+{
+    if (tree == NULL)
+        return;
+    btree_inorder(tree->left, f);
+    f(tree);
+    btree_inorder(tree->right, f);
+}
+
+void btree_postorder(BTree *tree, void (*f)(BTree *))
+{
+    if (tree == NULL)
+        return;
+    btree_postorder(tree->left, f);
+    btree_postorder(tree->right, f);
+    f(tree);
+}
+
+void btree_breadth_first(BTree *tree, void (*f)(BTree *))
+{
+    /* if (tree == NULL) */
+    /*     return; */
+    /* Queue *discovered = queue_enqueue(discovered, tree); */
+    /* BSTNode *current; */
+    /* while (!queue_empty(discovered)) { */
+    /*     current = (BSTNode *)queue_peek(discovered); */
+    /*     f(current); */
+    /*     if (tree->left != NULL) */
+    /*         discovered = queue_enqueue(discovered, current->left); */
+    /*     if (tree->right != NULL) */
+    /*         discovered = queue_enqueue(discovered, current->right); */
+    /*     discovered = queue_dequeue(discovered); */
+    /* } */
 }

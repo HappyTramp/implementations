@@ -15,5 +15,5 @@ void tearDown(void)
 
 void test_dlist_create_elem(void)
 {
-    TEST_IGNORE_MESSAGE("test missing");
+    TEST_MISSING();
 }

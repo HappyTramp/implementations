@@ -1,5 +1,5 @@
 #include "unity.h"
-/* #include "mock_list.h" */
+#include "unity_helper.h"
 #include "list.h"
 #include "stack.h"
 
@@ -115,12 +115,12 @@ void test_stack_swap(void)
 
 void test_stack_rotate_right(void)
 {
-    TEST_IGNORE();
+    TEST_MISSING();
 }
 
 void test_stack_rotate_left(void)
 {
-    TEST_IGNORE();
+    TEST_MISSING();
 }
 
 void test_stack_size(void)
