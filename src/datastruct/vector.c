@@ -1,118 +1,105 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "vector.h"
-#include "logger.h"
 
-#define GROWTH_FACTOR 2
+#define GROWTH_FACTOR 1.5
 
-static Vector *grow(Vector *vector, unsigned int growth);
-static Vector *geometric_expension(Vector *vector);
-static void check_index(Vector *vector, unsigned int index);
+static void grow_if_full(Vector *vector, size_t growth_size);
+static void grow(Vector *vector, size_t growth_size);
+/* static void geometric_expension(Vector *vector); */
+/* static void check_index(Vector *vector, size_t index); */
 
 Vector *vector_new(void)
 {
     Vector *vector = malloc(sizeof(Vector));
     if (vector == NULL)
-        log_error_exit("new vector is NULL");
+        return NULL;
     vector->capacity = 0;
     vector->size = 0;
     vector->under = NULL;
     return vector;
 }
 
-Vector *vector_destroy(Vector *vector)
+void vector_destroy(Vector **vector, void (*free_fn)(void *))
 {
-    free(vector->under);
-    free(vector);
-    return NULL;
+    if (*vector == NULL)
+        return;
+    for (size_t i = 0; i < (*vector)->size; i++)
+        free_fn(vector_get(*vector, i));
+    free((*vector)->under);
+    free(*vector);
+    *vector = NULL;
 }
 
-int vector_get(Vector *vector, unsigned int index)
+void *vector_get(Vector *vector, size_t index)
 {
-    check_index(vector, index);
     return vector->under[index];
 }
 
-Vector *vector_set(Vector *vector, unsigned int index, int value)
+void vector_set(Vector *vector, size_t index, void *data)
 {
-    check_index(vector, index);
-    vector->under[index] = value;
-    return vector;
+    vector->under[index] = data;
 }
 
-Vector *vector_insert(Vector *vector, int value)
+void vector_push(Vector *vector, void *data)
 {
-
-    return vector;
+    grow_if_full(vector, 1);
+    vector_set(vector, vector->size - 1, data);
 }
 
-Vector *vector_push(Vector *vector, int value)
+void vector_pop(Vector *vector, void (*free_fn)(void *))
 {
-    vector = grow(vector, 1);
-    vector->under[vector->size - 1] = value;
-    return vector;
-}
-
-Vector *vector_pop(Vector *vector)
-{
-    if (vector->size == 0)
-        log_error_exit("pop empty vector");
-    vector->under[vector->size - 1] = 0;
     vector->size--;
-    return vector;
+    free_fn(vector_get(vector, vector->size));
+    vector_set(vector, vector->size, NULL);
 }
 
-Vector *vector_unshift(Vector *vector, int value)
+void vector_unshift(Vector *vector, void *data)
 {
-    vector = grow(vector, 1);
-    for (int i = vector->size - 1; i != 0; i--)
-        vector->under[i] = vector->under[i - 1];
-    vector->under[0] = value;
-    return vector;
+    grow_if_full(vector, 1);
+    for (size_t i = vector->size - 1; i > 0; i--)
+        vector_set(vector, i, vector_get(vector, i - 1));
+    vector_set(vector, 0, data);
 }
 
-Vector *vector_shift(Vector *vector)
+void vector_shift(Vector *vector, void (*free_fn)(void *))
 {
-    if (vector->size == 0)
-        log_error_exit("shift empty vector");
-    for (unsigned int i = 0; i < vector->size - 1; i++)
-        vector->under[i] = vector->under[i + 1];
-    vector->under[vector->size - 1] = 0;
-    vector->size--;
-    return vector;
+    free_fn(vector_get(vector, 0));
+    for (size_t i = 0; i < vector->size; i++)
+        vector_set(vector, i, vector_get(vector, i + 1));
+    vector_set(vector, --vector->size, NULL);
 }
 
-static Vector *grow(Vector *vector, unsigned int growth)
+static void grow_if_full(Vector *vector, size_t growth_size)
 {
-    vector->size += growth;
-    int cap_growth = vector->size - vector->capacity;
-    if (cap_growth <= 0)
-        return vector;
+    if (vector->size < vector->capacity)
+        return;
+    grow(vector, growth_size);
+}
 
-    vector->under = realloc(vector->under, sizeof(int) * vector->size);
+static void grow(Vector *vector, size_t growth_size)
+{
+    vector->capacity += growth_size;
+    /* printf("%d, %p", sizeof(void*) * vector->capacity, vector->under); */
+    vector->under = (void**)realloc(vector->under, sizeof(void*) * vector->capacity);
     if (vector->under == NULL)
-        log_error_exit("vector under reallocation is NULL");
-    vector->capacity = vector->size;
-    return vector;
+        return;
+    vector->size = vector->capacity;
 }
 
-static Vector *geometric_expension(Vector *vector)
+/* static void geometric_expension(Vector *vector) */
+/* { */
+/*     grow(vector, vector->capacity * GROWTH_FACTOR); */
+/* } */
+
+/* static void check_index(Vector *vector, size_t index) */
+/* { */
+/*     if (index > vector->size || index > -vector->size) */
+/*         log_error_exit("invalid index"); */
+/* } */
+
+void vector_print(Vector *vector, void (*f)(void *))
 {
-    return grow(vector, vector->size * GROWTH_FACTOR);
+    for (size_t i = 0; i < vector->size; i++)
+        f(vector_get(vector, i));
 }
-
-static void check_index(Vector *vector, unsigned int index)
-{
-    if (index > vector->size || index > -vector->size)
-        log_error_exit("invalid index");
-}
-
-void vector_print(Vector *vector)
-{
-    printf("vector at %p [%d > %d]: ",
-          vector, vector->size, vector->capacity);
-    for (unsigned int i = 0; i < vector->size; i++)
-        printf("%d, ", vector_get(vector, i));
-    printf("\n");
-}
-

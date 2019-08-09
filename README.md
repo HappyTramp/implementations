@@ -1,10 +1,10 @@
 # Implementations
 
-Some implementation of algorithms
+Some implementation of algorithms and other stuff.
 
 ## Testing
 
-Unit test made with [Unity](https://www.throwtheswitch.org/unity) and built with [Ceedling](https://www.throwtheswitch.org/ceedling)
+Unit test made with [Unity](https://www.throwtheswitch.org/unity) and built with [Ceedling](https://www.throwtheswitch.org/ceedling).
 
 Install Ceedling:
 ```
