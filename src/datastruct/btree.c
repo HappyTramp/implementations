@@ -1,84 +1,68 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "logger.h"
-#include "binarytree.h"
+#include <string.h>
+#include "btree.h"
 
-
-static void print_value(BTree *tree);
-static bool empty(BTree *tree);
-
-
-BTree *btree_new(int value)
+BTree *btree_create_elem(void *data)
 {
     BTree *tree = malloc(sizeof(BTree));
-    if (empty(tree))
-        log_error_exit("tree allocation");
-    tree->parent = NULL;
+    if (tree == NULL)
+        return NULL;
     tree->left = NULL;
     tree->right = NULL;
-    tree->value = value;
-    log_info("tree created");
+    tree->data = data;
     return tree;
 }
 
-void btree_destroy(BTree *tree)
+void btree_destroy(BTree **tree, void (*free_fn)(void *))
 {
-    if (empty(tree))
+    btree_clear(*tree, free_fn);
+    *tree = NULL;
+}
+
+void btree_clear(BTree *tree, void (*free_fn)(void *))
+{
+    if (tree == NULL)
         return;
-    btree_destroy(tree->left);
-    btree_destroy(tree->right);
+    btree_clear(tree->left, free_fn);
+    btree_clear(tree->right, free_fn);
+    free_fn(tree->data);
     free(tree);
-    /* log_info("tree destroyed"); */
 }
 
-BTree *btree_join(BTree *left, BTree *right, int value)
+BTree *btree_join(BTree *left, BTree *right, void *data)
 {
-    BTree *joint = btree_new(value);
-    joint->left = left;
-    joint->right = right;
-    if (!empty(left))
-        left->parent = joint;
-    if (!empty(right))
-        right->parent = joint;
-    return joint;
+    BTree *join = btree_create_elem(data);
+    if (join == NULL)
+        return NULL;
+    join->left = left;
+    join->right = right;
+    return join;
 }
 
-int btree_count(BTree *tree)
+size_t btree_count(BTree *tree)
 {
-    if (empty(tree))
+    if (tree == NULL)
         return 0;
     return (btree_count(tree->left) + btree_count(tree->right) + 1);
 }
 
-/* void btree_add_leaf(BTree *parent, int value) */
-/* { */
-/*     BTree *leaf = btree_new(value); */
-/*     leaf->parent = parent; */
-/*     parent-> */
-
-/* } */
-
-static bool empty(BTree *tree)
+size_t btree_level_count(BTree *tree)
 {
-    return tree == NULL;
-}
+    int left_level;
+    int right_level;
 
-void btree_print(BTree *tree)
-{
-    print_value(tree->parent);
-    printf(" -> ");
-    printf("%d -> ", tree->value);
-    print_value(tree->left);
-    printf(" ");
-    print_value(tree->right);
-    printf("\n");
-}
-
-static void print_value(BTree* tree)
-{
-    if (!empty(tree))
-        printf("%d", tree->value);
+    if (tree == NULL)
+        return (0);
+    left_level = 0;
+    right_level = 0;
+    if (tree->left != NULL) // unnecessary
+        left_level = btree_level_count(tree->left);
+    if (tree->right != NULL)
+        right_level = btree_level_count(tree->right);
+    if (left_level >= right_level)
+        return (1 + left_level);
     else
-        printf("_");
+        return (1 + right_level);
 }

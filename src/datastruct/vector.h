@@ -1,7 +1,6 @@
 #ifndef __VECTOR_H__
 # define __VECTOR_H__
 
-#define UNITY_OUTPUT_COLOR
 # include <string.h>
 
 typedef struct {
