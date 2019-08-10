@@ -48,6 +48,25 @@ void test_vector_get(void)
     TEST_ASSERT_INT_DATA(i9, vector_get(vector, 1));
 }
 
+void test_vector_at(void)
+{
+    vector_push(vector, &i3);
+    TEST_ASSERT_INT_DATA(i3, vector_at(vector, 0));
+    vector_push(vector, &i9);
+    TEST_ASSERT_INT_DATA(i9, vector_at(vector, 1));
+    TEST_ASSERT_NULL(vector_at(vector, 2));
+    TEST_ASSERT_NULL(vector_at(vector, 3));
+}
+
+void test_vector_last(void)
+{
+    TEST_ASSERT_NULL(vector_last(vector));
+    vector_push(vector, &i3);
+    TEST_ASSERT_INT_DATA(i3, vector_last(vector));
+    vector_push(vector, &i9);
+    TEST_ASSERT_INT_DATA(i9, vector_last(vector));
+}
+
 void test_vector_set(void)
 {
     vector_push(vector, &i9);

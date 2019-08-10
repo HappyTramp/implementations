@@ -36,6 +36,18 @@ void *vector_get(Vector *vector, size_t index)
     return vector->under[index];
 }
 
+void *vector_at(Vector *vector, size_t index)
+{
+    if (index >= vector->size)
+        return NULL;
+    return vector_get(vector, index);
+}
+
+void *vector_last(Vector *vector)
+{
+    return vector_at(vector, vector->size - 1);
+}
+
 void vector_set(Vector *vector, size_t index, void *data)
 {
     vector->under[index] = data;
@@ -80,7 +92,6 @@ static void grow_if_full(Vector *vector, size_t growth_size)
 static void grow(Vector *vector, size_t growth_size)
 {
     vector->capacity += growth_size;
-    /* printf("%d, %p", sizeof(void*) * vector->capacity, vector->under); */
     vector->under = (void**)realloc(vector->under, sizeof(void*) * vector->capacity);
     if (vector->under == NULL)
         return;
