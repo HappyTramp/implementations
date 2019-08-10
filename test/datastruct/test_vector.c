@@ -90,7 +90,7 @@ void test_vector_push(void)
     vector_push(vector, &i4);
     TEST_ASSERT_EQUAL(2, vector->capacity);
     TEST_ASSERT_EQUAL(2, vector->size);
-    TEST_ASSERT_EQUAL(&i4, vector->under[1]);
+    TEST_ASSERT_INT_DATA(i4, vector->under[1]);
 }
 
 void test_vector_pop(void)
