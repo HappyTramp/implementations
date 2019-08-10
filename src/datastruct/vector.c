@@ -9,13 +9,14 @@ static void grow(Vector *vector, size_t growth_size);
 /* static void geometric_expension(Vector *vector); */
 /* static void check_index(Vector *vector, size_t index); */
 
-Vector *vector_new(void)
+Vector *vector_new(size_t data_size)
 {
     Vector *vector = malloc(sizeof(Vector));
     if (vector == NULL)
         return NULL;
     vector->capacity = 0;
     vector->size = 0;
+    vector->data_size = data_size;
     vector->under = NULL;
     return vector;
 }
@@ -33,7 +34,7 @@ void vector_destroy(Vector **vector, void (*free_fn)(void *))
 
 void *vector_get(Vector *vector, size_t index)
 {
-    return vector->under[index];
+    return vector->under + index * vector->data_size;
 }
 
 void *vector_at(Vector *vector, size_t index)
@@ -50,7 +51,7 @@ void *vector_last(Vector *vector)
 
 void vector_set(Vector *vector, size_t index, void *data)
 {
-    vector->under[index] = data;
+    memcpy(vector->under + index * vector->data_size, data, vector->data_size);
 }
 
 void vector_push(Vector *vector, void *data)
@@ -63,7 +64,6 @@ void vector_pop(Vector *vector, void (*free_fn)(void *))
 {
     vector->size--;
     free_fn(vector_get(vector, vector->size));
-    vector_set(vector, vector->size, NULL);
 }
 
 void vector_unshift(Vector *vector, void *data)
@@ -79,7 +79,7 @@ void vector_shift(Vector *vector, void (*free_fn)(void *))
     free_fn(vector_get(vector, 0));
     for (size_t i = 0; i < vector->size; i++)
         vector_set(vector, i, vector_get(vector, i + 1));
-    vector_set(vector, --vector->size, NULL);
+    vector->size--;
 }
 
 static void grow_if_full(Vector *vector, size_t growth_size)
@@ -92,7 +92,7 @@ static void grow_if_full(Vector *vector, size_t growth_size)
 static void grow(Vector *vector, size_t growth_size)
 {
     vector->capacity += growth_size;
-    vector->under = (void**)realloc(vector->under, sizeof(void*) * vector->capacity);
+    vector->under = realloc(vector->under, vector->data_size * vector->capacity);
     if (vector->under == NULL)
         return;
     vector->size = vector->capacity;

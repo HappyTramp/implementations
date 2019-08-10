@@ -6,10 +6,11 @@
 typedef struct {
     size_t capacity;
     size_t size;
-    void **under;
+    size_t data_size;
+    void *under;
 } Vector;
 
-Vector *vector_new(void);
+Vector *vector_new(size_t data_size);
 void vector_destroy(Vector **vector, void (*free_fn)(void *));
 void *vector_get(Vector *vector, size_t index);
 void *vector_at(Vector *vector, size_t index);

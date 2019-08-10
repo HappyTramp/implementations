@@ -17,7 +17,7 @@ static Vector *vector;
 
 void setUp(void)
 {
-    vector = vector_new();
+    vector = vector_new(sizeof(int));
 }
 
 void tearDown(void)
@@ -31,6 +31,7 @@ void test_vector_new(void)
     TEST_ASSERT_NOT_NULL(vector);
     TEST_ASSERT_EQUAL(0, vector->capacity);
     TEST_ASSERT_EQUAL(0, vector->size);
+    TEST_ASSERT_EQUAL(sizeof(int), vector->data_size);
     TEST_ASSERT_NULL(vector->under);
 }
 
@@ -74,11 +75,11 @@ void test_vector_set(void)
     vector_push(vector, &i7);
 
     vector_set(vector, 0, &i1);
-    TEST_ASSERT_INT_DATA(i1, vector->under[0]);
+    TEST_ASSERT_INT_DATA(i1, vector->under);
     vector_set(vector, 1, &i2);
-    TEST_ASSERT_INT_DATA(i2, vector->under[1]);
+    TEST_ASSERT_INT_DATA(i2, vector_get(vector, 1));
     vector_set(vector, 2, &i3);
-    TEST_ASSERT_INT_DATA(i3, vector->under[2]);
+    TEST_ASSERT_INT_DATA(i3, vector_get(vector, 2));
 }
 
 void test_vector_push(void)
@@ -86,11 +87,11 @@ void test_vector_push(void)
     vector_push(vector, &i6);
     TEST_ASSERT_EQUAL(1, vector->capacity);
     TEST_ASSERT_EQUAL(1, vector->size);
-    TEST_ASSERT_INT_DATA(i6, vector->under[0]);
+    TEST_ASSERT_INT_DATA(i6, vector->under);
     vector_push(vector, &i4);
     TEST_ASSERT_EQUAL(2, vector->capacity);
     TEST_ASSERT_EQUAL(2, vector->size);
-    TEST_ASSERT_INT_DATA(i4, vector->under[1]);
+    TEST_ASSERT_INT_DATA(i4, vector_get(vector, 1));
 }
 
 void test_vector_pop(void)
@@ -99,12 +100,12 @@ void test_vector_pop(void)
     vector_push(vector, &i5);
     TEST_ASSERT_EQUAL(2, vector->capacity);
     TEST_ASSERT_EQUAL(2, vector->size);
-    TEST_ASSERT_INT_DATA(i4, vector->under[0]);
-    TEST_ASSERT_INT_DATA(i5, vector->under[1]);
+    TEST_ASSERT_INT_DATA(i4, vector_get(vector, 0));
+    TEST_ASSERT_INT_DATA(i5, vector_get(vector, 1));
     vector_pop(vector, free_not);
     TEST_ASSERT_EQUAL(2, vector->capacity);
     TEST_ASSERT_EQUAL(1, vector->size);
-    TEST_ASSERT_INT_DATA(i4, vector->under[0]);
+    TEST_ASSERT_INT_DATA(i4, vector_get(vector, 0));
     vector_pop(vector, free_not);
     TEST_ASSERT_EQUAL(2, vector->capacity);
     TEST_ASSERT_EQUAL(0, vector->size);
@@ -115,16 +116,16 @@ void test_vector_unshift(void)
     vector_unshift(vector, &i5);
     TEST_ASSERT_EQUAL(1, vector->capacity);
     TEST_ASSERT_EQUAL(1, vector->size);
-    TEST_ASSERT_INT_DATA(i5, vector->under[0]);
+    TEST_ASSERT_INT_DATA(i5, vector_get(vector, 0));
     vector_unshift(vector, &i1);
     TEST_ASSERT_EQUAL(2, vector->capacity);
     TEST_ASSERT_EQUAL(2, vector->size);
-    TEST_ASSERT_INT_DATA(i1, vector->under[0]);
-    TEST_ASSERT_INT_DATA(i5, vector->under[1]);
+    TEST_ASSERT_INT_DATA(i1, vector_get(vector, 0));
+    TEST_ASSERT_INT_DATA(i5, vector_get(vector, 1));
     vector_unshift(vector, &i2);
-    TEST_ASSERT_INT_DATA(i2, vector->under[0]);
-    TEST_ASSERT_INT_DATA(i1, vector->under[1]);
-    TEST_ASSERT_INT_DATA(i5, vector->under[2]);
+    TEST_ASSERT_INT_DATA(i2, vector_get(vector, 0));
+    TEST_ASSERT_INT_DATA(i1, vector_get(vector, 1));
+    TEST_ASSERT_INT_DATA(i5, vector_get(vector, 2));
 }
 
 void test_vector_shift(void)
@@ -135,11 +136,11 @@ void test_vector_shift(void)
     vector_shift(vector, free_not);
     TEST_ASSERT_EQUAL(2, vector->size);
     TEST_ASSERT_EQUAL(3, vector->capacity);
-    TEST_ASSERT_INT_DATA(i2, vector->under[0]);
+    TEST_ASSERT_INT_DATA(i2, vector_get(vector, 0));
     vector_shift(vector, free_not);
     TEST_ASSERT_EQUAL(1, vector->size);
     TEST_ASSERT_EQUAL(3, vector->capacity);
-    TEST_ASSERT_INT_DATA(i3, vector->under[0]);
+    TEST_ASSERT_INT_DATA(i3, vector_get(vector, 0));
     vector_shift(vector, free_not);
     TEST_ASSERT_EQUAL(0, vector->size);
     TEST_ASSERT_EQUAL(3, vector->capacity);
