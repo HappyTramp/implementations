@@ -48,9 +48,8 @@ void swap_ptr(void **a, void **b)
 
 void *max(void *a, void *b, int (*compar)(const void *, const void *))
 {
-    /* int cmp = compar(a, b); */
-    /* return cmp >= 0 ? a : b; */
-    return a;
+    int cmp = compar(a, b);
+    return cmp >= 0 ? a : b;
 }
 
 size_t range_ptr(int **range, int min, int max)
