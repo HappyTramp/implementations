@@ -14,8 +14,8 @@ merge_list :: (Ord a) => [a] -> [a] -> [a]
 merge_list xs [] = xs
 merge_list [] ys = ys
 merge_list (x:xs) (y:ys)
-    | x < y     = x:(merge_list xs (y:ys))
-    | otherwise = y:(merge_list (x:xs) ys)
+    | x < y     = x:merge_list xs (y:ys)
+    | otherwise = y:merge_list (x:xs) ys
 
 quicksort :: (Ord a) => [a] -> [a]
 quicksort [] = []
