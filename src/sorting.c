@@ -2,6 +2,8 @@
 #include <string.h>
 #include "sorting.h"
 #include "helper.h"
+#include "vector.h"
+#include "heap.h"
 
 static void merge_array(void *base, void *left, void *right, size_t base_len,
                         size_t size, int (*compar)(const void *, const void *));
@@ -149,6 +151,22 @@ static int quicksort_partition(void *base, int lo, int hi, size_t size,
     return pivot_i;
 }
 
+void heapsort(void *base, size_t nmemb, size_t size,
+		      int (*compar)(const void *, const void *))
+{
+    Heap *heap = heap_heapify(base, nmemb, size, compar);
+    while (heap->size > 0)
+    {
+        /* print_int_array(heap->under, heap->size); */
+        /* printf("-\n"); */
+        /* print_int_array(&((int*)heap->under)[heap->size], nmemb - heap->size); */
+        /* printf("----------\n"); */
+
+        heap_stash_max(heap, compar);
+    }
+    memcpy(base, heap->under, nmemb * size);
+}
+
 void cocktail_sort(void *base, size_t nmemb, size_t size,
 		           int (*compar)(const void *, const void *))
 {
@@ -156,7 +174,7 @@ void cocktail_sort(void *base, size_t nmemb, size_t size,
 
     for (int lo = 0, hi = nmemb - 1; lo < hi; lo++, hi--)
     {
-        printf("%d..%d\n", lo, hi);
+        /* printf("%d..%d\n", lo, hi); */
         for (j = lo; j < hi; j++)
             if (compar(base + j * size, base + (j + 1) * size + size) > 0)
                 swap(base + j * size, base + (j + 1) * size + size, size);

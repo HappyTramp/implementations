@@ -6,12 +6,12 @@
 
 static void sift_up(Heap *heap, size_t i, int (*compar)(const void *, const void *));
 static void sift_down(Heap *heap, size_t i, int (*compar)(const void *, const void *));
-static void *heap_left(Heap *heap, size_t i);
-static void *heap_right(Heap *heap, size_t i);
-static void *heap_parent(Heap *heap, size_t i);
-static inline size_t heap_left_i(size_t i);
-static inline size_t heap_right_i(size_t i);
-static inline size_t heap_parent_i(size_t i);
+static void *left_ptr(Heap *heap, size_t i);
+static void *right_ptr(Heap *heap, size_t i);
+static void *parent_ptr(Heap *heap, size_t i);
+static inline size_t left_i(size_t i);
+static inline size_t right_i(size_t i);
+static inline size_t parent_i(size_t i);
 static void dummy_free(void *data) {}
 
 Heap *heap_new(size_t data_size)
@@ -72,62 +72,68 @@ void heap_heapify_array(void *datas, size_t nmemb, size_t size,
 static void sift_up(Heap *heap, size_t i, int (*compar)(const void *, const void *))
 {
     void *current = vector_get(heap, i);
-    void *parent = heap_parent(heap, i);
+    void *parent = parent_ptr(heap, i);
     if (i == 0 || compar(current, parent) <= 0)
         return;
     swap(current, parent, heap->data_size);
-    sift_up(heap, heap_parent_i(i), compar);
+    sift_up(heap, parent_i(i), compar);
 }
 
 static void sift_down(Heap *heap, size_t i, int (*compar)(const void *, const void *))
 {
-    void *node = vector_get(heap, i);
+    void *node = vector_at(heap, i);
     if (node == NULL)
         return;
-    void *left = heap_left(heap, i);
-    void *right = heap_right(heap, i);
-    if (left == NULL && right == NULL)
-        return;
-    if (right == NULL)
-        swap(node, left, heap->data_size);
-    else if (left == NULL)
-        swap(node, right, heap->data_size);
-    else
+    void *l = left_ptr(heap, i);
+    void *r = right_ptr(heap, i);
+    if (l != NULL && r != NULL)
     {
-        void *max_child = max(left, right, compar);
-        if (compar(max_child, node) > 0);
+        int max_i = compar(l, r) > 0 ? left_i(i) : right_i(i);
+        void *max_child = vector_get(heap, max_i);
+        if (compar(max_child, node) > 0)
+        {
             swap(node, max_child, heap->data_size);
+            sift_down(heap, max_i, compar);
+        }
     }
-    sift_down(heap, heap_left_i(i), compar);
-    sift_down(heap, heap_right_i(i), compar);
+    if (l == NULL && r != NULL && compar(r, node) > 0)
+    {
+        swap(node, r, heap->data_size);
+        sift_down(heap, right_i(i), compar);
+    }
+    if (r == NULL && l != NULL && compar(l, node) > 0)
+    {
+        swap(node, l, heap->data_size);
+        sift_down(heap, left_i(i), compar);
+    }
 }
 
-static void *heap_left(Heap *heap, size_t i)
+static void *left_ptr(Heap *heap, size_t i)
 {
-    return vector_at(heap, heap_left_i(i));
+    return vector_at(heap, left_i(i));
 }
 
-static void *heap_right(Heap *heap, size_t i)
+static void *right_ptr(Heap *heap, size_t i)
 {
-    return vector_at(heap, heap_right_i(i));
+    return vector_at(heap, right_i(i));
 }
 
-static void *heap_parent(Heap *heap, size_t i)
+static void *parent_ptr(Heap *heap, size_t i)
 {
-    return vector_at(heap, heap_parent_i(i));
+    return vector_at(heap, parent_i(i));
 }
 
-static inline size_t heap_left_i(size_t i)
+static inline size_t left_i(size_t i)
 {
     return i * 2 + 1;
 }
 
-static inline size_t heap_right_i(size_t i)
+static inline size_t right_i(size_t i)
 {
     return i * 2 + 2;
 }
 
-static inline size_t heap_parent_i(size_t i)
+static inline size_t parent_i(size_t i)
 {
     return (i - 1) / 2;
 }

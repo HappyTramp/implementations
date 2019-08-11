@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include "unity.h"
 #include "stub_array.h"
-#include "sorting.h"
+#include "heap.h"
+#include "vector.h"
 #include "helper.h"
+#include "sorting.h"
 
 static int hc[HC_LEN];
 static int hc_sorted[HC_LEN];
@@ -100,6 +102,20 @@ void test_quicksort(void)
     quicksort(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev);
     TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev));
     /* print_int_array(rrange, RRANGE_LEN); */
+}
+
+void test_heapsort(void)
+{
+    heapsort(hc, HC_LEN, HC_SIZE, cmp_int);
+    /* print_int_array(hc, HC_LEN); */
+    TEST_ASSERT_EQUAL_INT_ARRAY(hc_sorted, hc, HC_LEN);
+    TEST_ASSERT_TRUE(sorted(hc, HC_LEN, HC_SIZE, cmp_int));
+
+    heapsort(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int);
+    TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int));
+    heapsort(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev);
+    /* print_int_array(rrange, RRANGE_LEN); */
+    TEST_ASSERT_TRUE(sorted(rrange, RRANGE_LEN, RRANGE_SIZE, &cmp_int_rev));
 }
 
 /* void test_cocktail_sort(void) */
