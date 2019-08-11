@@ -1,2 +1,5 @@
 vendor/*
 build/*
+*.o
+haskell/*
+!haskell/*.hs
