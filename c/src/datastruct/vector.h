@@ -1,7 +1,7 @@
 #ifndef __VECTOR_H__
 # define __VECTOR_H__
 
-# include <string.h>
+# include <stddef.h>
 
 typedef struct {
     size_t capacity;

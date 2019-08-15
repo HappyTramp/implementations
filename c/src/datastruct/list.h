@@ -2,7 +2,7 @@
 #define __LIST_H__
 
 #include <stdbool.h>
-#include <string.h>
+#include <stddef.h>
 
 typedef struct List {
     struct List *next;
